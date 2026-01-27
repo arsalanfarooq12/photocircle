@@ -1,14 +1,14 @@
-import { readDB, writeDB } from "../storage/db.js";
-function generateId(prefix = "t") {
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
+// this controller handles Crud operation on postgresql database
+import crypto from "node:crypto";
+import pool from "../db/pool.js";
 
 export async function listTasks(req, res, next) {
   try {
-    const db = await readDB();
-    const tasks = db.tasks.filter((task) => task.userId === req.user.id); // used to retrieve only the tasks belonging to the logged-in userimport { readDB, writeDB } from '../storage/db.js';
-
-    res.json({ tasks });
+    const result = await pool.query(
+      "SELECT id, title, description, completed, created_at, updated_at FROM api.tasks WHERE user_id = $1 ORDER BY created_at DESC",
+      [req.user.id]
+    );
+    res.json({ tasks: result.rows });
   } catch (err) {
     next(err);
   }
@@ -17,29 +17,16 @@ export async function listTasks(req, res, next) {
 export async function createTask(req, res, next) {
   try {
     const { title, description } = req.body;
+    const id = crypto.randomUUID();
 
-    if (!title || title.trim().length < 3) {
-      return next({
-        status: 400,
-        message: "Title must be at least 3 characters",
-      });
-    }
+    const result = await pool.query(
+      `INSERT INTO api.tasks (id, user_id, title, description)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, title, description, completed, created_at, updated_at`,
+      [id, req.user.id, title, description || ""]
+    );
 
-    const db = await readDB();
-    const task = {
-      id: generateId("t"),
-      userId: req.user.id,
-      title: title.trim(),
-      description: description?.trim() || "",
-      completed: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    db.tasks.push(task); //since here the tasks in db.json is an array i used .push() method.
-    await writeDB(db);
-
-    res.status(201).json(task);
+    res.status(201).json(result.rows[0]);
   } catch (err) {
     next(err);
   }
@@ -47,63 +34,60 @@ export async function createTask(req, res, next) {
 
 export async function getTask(req, res, next) {
   try {
-    const { id } = req.params;
-    const db = await readDB();
+    const result = await pool.query(
+      "SELECT id, title, description, completed, created_at, updated_at FROM api.tasks WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
+    );
 
-    const task = db.tasks.find((t) => t.id === id && t.userId === req.user.id);
-    if (!task) {
+    if (result.rowCount === 0)
       return next({ status: 404, message: "Task not found" });
-    }
-
-    res.json(task);
+    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }
 }
 
+// Update task function
 export async function updateTask(req, res, next) {
   try {
-    const { id } = req.params;
     const { title, description, completed } = req.body;
 
-    const db = await readDB();
-    const taskIndex = db.tasks.findIndex(
-      (t) => t.id === id && t.userId === req.user.id
+    //  update fields if provided
+    const result = await pool.query(
+      `UPDATE api.tasks
+       SET title = COALESCE($1, title),
+           description = COALESCE($2, description),
+           completed = COALESCE($3, completed),
+           updated_at = now()
+       WHERE id = $4 AND user_id = $5
+       RETURNING id, title, description, completed, created_at, updated_at`,
+      [
+        title ?? null,
+        description ?? null,
+        completed ?? null,
+        req.params.id,
+        req.user.id,
+      ]
     );
 
-    if (taskIndex === -1) {
+    if (result.rowCount === 0)
       return next({ status: 404, message: "Task not found" });
-    }
-
-    const task = db.tasks[taskIndex];
-
-    if (title !== undefined) task.title = title.trim();
-    if (description !== undefined) task.description = description?.trim() || "";
-    if (completed !== undefined) task.completed = Boolean(completed);
-    task.updatedAt = new Date().toISOString();
-
-    await writeDB(db);
-    res.json(task);
+    res.json(result.rows[0]);
   } catch (err) {
     next(err);
   }
 }
 
+// Delete task function
 export async function deleteTask(req, res, next) {
   try {
-    const { id } = req.params;
-    const db = await readDB();
-
-    const taskIndex = db.tasks.findIndex(
-      (t) => t.id === id && t.userId === req.user.id
+    const result = await pool.query(
+      "DELETE FROM api.tasks WHERE id = $1 AND user_id = $2",
+      [req.params.id, req.user.id]
     );
-    if (taskIndex === -1) {
+
+    if (result.rowCount === 0)
       return next({ status: 404, message: "Task not found" });
-    }
-
-    db.tasks.splice(taskIndex, 1);
-    await writeDB(db);
-
     res.status(204).send();
   } catch (err) {
     next(err);

@@ -4,7 +4,6 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
-import { readDB, writeDB } from "./storage/db.js";
 import authRoutes from "./routes/auth.js";
 import tasksRoutes from "./routes/tasks.js";
 const app = express();
@@ -17,19 +16,6 @@ app.use(express.json());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
 app.get("/health", (req, res) => {
   res.json({ ok: true });
-});
-
-// Storage test endpoints
-app.get("/db-test", async (req, res) => {
-  const db = await readDB();
-  res.json({ count: { users: db.users.length, tasks: db.tasks.length } });
-});
-
-app.post("/db-test", async (req, res) => {
-  const db = await readDB();
-  db.test = (db.test || 0) + 1;
-  await writeDB(db);
-  res.json({ testCount: db.test });
 });
 
 // stricter rate limits for auth routes

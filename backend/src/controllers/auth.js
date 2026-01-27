@@ -1,85 +1,69 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { readDB, writeDB } from "../storage/db.js";
-
-function generateId(prefix = "u") {
-  // It combines a timestamp with a random alphanumeric string to ensure
-  //  no two users have the same ID.
-  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-}
-// register controller
+import crypto from "node:crypto";
+import pool from "../db/pool.js";
 
 export async function register(req, res, next) {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
+    if (!email || !password)
       return next({ status: 400, message: "Email and password required" });
-    }
 
-    const db = await readDB();
+    const exists = await pool.query(
+      "SELECT 1 FROM api.users WHERE email = $1",
+      [email]
+    );
 
-    // Check if user exists
-    const existingUser = db.users.find((u) => u.email === email);
-    if (existingUser) {
+    if (exists.rowCount > 0)
       return next({ status: 409, message: "Email already registered" });
-    }
 
-    // Hash password + create user
+    const id = crypto.randomUUID();
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = {
-      id: generateId("u"),
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString(),
-    };
 
-    db.users.push(user);
-    await writeDB(db);
+    const created = await pool.query(
+      "INSERT INTO api.users (id, email, password_hash) VALUES ($1, $2, $3) RETURNING id, email, role",
+      [id, email, passwordHash]
+    );
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const user = created.rows[0];
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.status(201).json({
-      token,
-      user: { id: user.id, email: user.email },
-    });
+    res.status(201).json({ token, user });
   } catch (err) {
     next(err);
   }
 }
 
-// login controller
 export async function login(req, res, next) {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
+    if (!email || !password)
       return next({ status: 400, message: "Email and password required" });
-    }
 
-    const db = await readDB();
-    const user = db.users.find((u) => u.email === email);
+    const result = await pool.query(
+      "SELECT id, email, role, password_hash FROM api.users WHERE email = $1",
+      [email]
+    );
 
-    if (!user) {
+    if (result.rowCount === 0)
       return next({ status: 401, message: "Invalid credentials" });
-    }
 
-    // Verify password
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
-      return next({ status: 401, message: "Invalid credentials" });
-    }
+    const userRow = result.rows[0];
+    const ok = await bcrypt.compare(password, userRow.password_hash);
+    if (!ok) return next({ status: 401, message: "Invalid credentials" });
 
-    // Generate JWT
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
+    const token = jwt.sign(
+      { id: userRow.id, role: userRow.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
     res.json({
       token,
-      user: { id: user.id, email: user.email },
+      user: { id: userRow.id, email: userRow.email, role: userRow.role },
     });
   } catch (err) {
     next(err);
