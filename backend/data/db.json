@@ -1,5 +1,61 @@
 {
-  "users": [],
-  "tasks": [],
+  "users": [
+    {
+      "id": "u_1769443872920_g0tazf",
+      "email": "test@example.com",
+      "passwordHash": "$2b$10$dWN1E945b9euMb8UMIpUkOfv1mM2HCY7oRNM/ZtC6ROKJlIQNpnNG",
+      "createdAt": "2026-01-26T16:11:12.920Z"
+    },
+    {
+      "id": "u_1769447060280_v32m7p",
+      "email": "test.com",
+      "passwordHash": "$2b$10$1fyIruDGZhzQ2ePFXzfVruhjsX9h.FKI4BJ8XaKTi9SUby85aRQsS",
+      "createdAt": "2026-01-26T17:04:20.280Z"
+    },
+    {
+      "id": "u_1769504764558_nv0yap",
+      "email": "test123.com",
+      "passwordHash": "$2b$10$D.vmwzwKKiPwJjrCYs0wxOTBI9o16TnkfNlAGbqwqXFzj9Jy.epee",
+      "createdAt": "2026-01-27T09:06:04.558Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t_1769447330751_19hkv1",
+      "userId": "u_1769447060280_v32m7p",
+      "title": "Buy groceries",
+      "description": "Milk, bread, eggs",
+      "completed": true,
+      "createdAt": "2026-01-26T17:08:50.751Z",
+      "updatedAt": "2026-01-26T17:13:13.522Z"
+    },
+    {
+      "id": "t_1769447680440_bk17tz",
+      "userId": "u_1769447060280_v32m7p",
+      "title": "Buy tools",
+      "description": "cutter, jigsaw, chainsaw",
+      "completed": false,
+      "createdAt": "2026-01-26T17:14:40.440Z",
+      "updatedAt": "2026-01-26T17:14:40.440Z"
+    },
+    {
+      "id": "t_1769447684174_39fhn5",
+      "userId": "u_1769447060280_v32m7p",
+      "title": "Buy tools",
+      "description": "cutter, jigsaw, chainsaw",
+      "completed": false,
+      "createdAt": "2026-01-26T17:14:44.174Z",
+      "updatedAt": "2026-01-26T17:14:44.176Z"
+    },
+    {
+      "id": "t_1769447746396_ra2y7l",
+      "userId": "u_1769447060280_v32m7p",
+      "title": "Buy tools",
+      "description": "cutter, jigsaw, chainsaw",
+      "completed": false,
+      "createdAt": "2026-01-26T17:15:46.396Z",
+      "updatedAt": "2026-01-26T17:15:46.396Z"
+    }
+  ],
   "test": 1
 }
