@@ -113,21 +113,6 @@ export function Tasks() {
 
           {/* description input */}
 
-          <input
-            type="text"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="Add a new task..."
-            style={{
-              flex: 1,
-              padding: "14px 16px",
-              border: "2px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "16px",
-              outline: "none",
-            }}
-            disabled={loading}
-          />
           <button
             type="submit"
             disabled={loading || !newTaskTitle.trim()}
