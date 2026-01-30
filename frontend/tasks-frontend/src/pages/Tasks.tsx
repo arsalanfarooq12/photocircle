@@ -7,6 +7,10 @@ export function Tasks() {
   const { tasks, fetchTasks, createTask, updateTask, deleteTask, loading } =
     useTasksApi();
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [newTaskDescription, setNewTaskDescription] = useState("");
+
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState("");
 
   useEffect(() => {
     fetchTasks();
@@ -15,8 +19,9 @@ export function Tasks() {
   const handleCreateTask = (e: React.SubmitEvent) => {
     e.preventDefault();
     if (newTaskTitle.trim()) {
-      createTask(newTaskTitle.trim());
+      createTask(newTaskTitle.trim(), newTaskDescription.trim() || undefined);
       setNewTaskTitle("");
+      setNewTaskDescription("");
     }
   };
 
@@ -87,53 +92,71 @@ export function Tasks() {
       </div>
 
       {/* New Task Form */}
-      <form onSubmit={handleCreateTask} style={{ marginBottom: "32px" }}>
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            maxWidth: "600px",
-          }}
-        >
-          <input
-            type="text"
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            placeholder="Add a new task..."
-            style={{
-              flex: 1,
-              padding: "14px 16px",
-              border: "2px solid #d1d5db",
-              borderRadius: "8px",
-              fontSize: "16px",
-              outline: "none",
-            }}
-            disabled={loading}
-          />
 
-          {/* description input */}
-
-          <button
-            type="submit"
-            disabled={loading || !newTaskTitle.trim()}
+      <div style={{ marginBottom: "32px" }}>
+        <form onSubmit={handleCreateTask}>
+          <div
             style={{
-              padding: "14px 24px",
-              backgroundColor:
-                loading || !newTaskTitle.trim() ? "#9ca3af" : "#10b981",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              cursor:
-                loading || !newTaskTitle.trim() ? "not-allowed" : "pointer",
-              fontWeight: "500",
-              minWidth: "100px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              maxWidth: "600px",
             }}
           >
-            Add Task
-          </button>
-        </div>
-      </form>
+            <input
+              type="text"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              placeholder="Task title..."
+              style={{
+                padding: "14px 16px",
+                border: "2px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "16px",
+                outline: "none",
+              }}
+              required
+              disabled={loading}
+            />
+
+            <textarea
+              value={newTaskDescription || ""}
+              onChange={(e) => setNewTaskDescription(e.target.value)}
+              placeholder="Description (optional)..."
+              rows={3}
+              style={{
+                padding: "12px 16px",
+                border: "2px solid #d1d5db",
+                borderRadius: "8px",
+                fontSize: "16px",
+                resize: "vertical",
+                outline: "none",
+                fontFamily: "inherit",
+              }}
+              disabled={loading}
+            />
+
+            <button
+              type="submit"
+              disabled={loading || !newTaskTitle.trim()}
+              style={{
+                padding: "14px 24px",
+                backgroundColor:
+                  loading || !newTaskTitle.trim() ? "#9ca3af" : "#10b981",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                cursor:
+                  loading || !newTaskTitle.trim() ? "not-allowed" : "pointer",
+                fontWeight: "500",
+              }}
+            >
+              {loading ? "Creating..." : "Add Task"}
+            </button>
+          </div>
+        </form>
+      </div>
 
       {/* Tasks List */}
       <div style={{ display: "grid", gap: "16px" }}>
@@ -183,7 +206,7 @@ export function Tasks() {
                 />
 
                 {/* Task Content */}
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: 1, position: "relative" }}>
                   <h3
                     style={{
                       margin: 0,
@@ -195,18 +218,71 @@ export function Tasks() {
                   >
                     {task.title}
                   </h3>
-                  {task.description && (
-                    <p
-                      style={{
-                        margin: "8px 0 0 0",
-                        color: "#6b7280",
-                        fontSize: "14px",
-                        lineHeight: "1.5",
+
+                  {/* Description Edit */}
+                  {editingTaskId === task.id ? (
+                    <textarea
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      onBlur={() => {
+                        if (editDescription.trim() !== task.description) {
+                          updateTask(task.id, {
+                            description: editDescription.trim(),
+                          });
+                        }
+                        setEditingTaskId(null);
+                        setEditDescription("");
                       }}
-                    >
-                      {task.description}
-                    </p>
+                      autoFocus
+                      style={{
+                        marginTop: "8px",
+                        padding: "8px 12px",
+                        border: "2px solid #3b82f6",
+                        borderRadius: "6px",
+                        fontSize: "14px",
+                        width: "100%",
+                        resize: "vertical",
+                        minHeight: "60px",
+                        fontFamily: "inherit",
+                        outline: "none",
+                      }}
+                      placeholder="Enter description..."
+                    />
+                  ) : (
+                    <>
+                      {task.description && (
+                        <p
+                          style={{
+                            margin: "8px 0 0 0",
+                            color: "#6b7280",
+                            fontSize: "14px",
+                            lineHeight: "1.5",
+                          }}
+                        >
+                          {task.description}
+                        </p>
+                      )}
+                      <button
+                        onClick={() => {
+                          setEditingTaskId(task.id);
+                          setEditDescription(task.description);
+                        }}
+                        style={{
+                          marginTop: "8px",
+                          padding: "4px 12px",
+                          backgroundColor: "#dbeafe",
+                          color: "#1e40af",
+                          border: "1px solid #93c5fd",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {task.description ? "Edit desc" : "Add desc"}
+                      </button>
+                    </>
                   )}
+
                   <p
                     style={{
                       margin: "8px 0 0 0",
