@@ -9,18 +9,32 @@ const AuthContext = createContext<{
   auth: AuthState;
   login: (token: string, user: User) => void;
   logout: () => void;
+  isHydrated: boolean;
 } | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Initial state before hydration
   const [auth, setAuth] = useState<AuthState>({ token: null, user: null });
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // Hydrate from localStorage after mount (client-side only)
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
-    if (token && user) {
-      setAuth({ token, user: JSON.parse(user) });
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const userStr = localStorage.getItem("user");
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setAuth({ token, user });
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      } catch (e) {
+        console.error("AuthContext: Failed to parse user", e);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
     }
+
+    setIsHydrated(true);
   }, []);
 
   const login = (token: string, user: User) => {
@@ -37,8 +51,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuth({ token: null, user: null });
   };
 
+  // Show loading until hydrated
+  if (!isHydrated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, isHydrated }}>
       {children}
     </AuthContext.Provider>
   );
