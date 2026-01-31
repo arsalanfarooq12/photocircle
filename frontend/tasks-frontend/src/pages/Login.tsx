@@ -11,7 +11,7 @@ export function Login() {
   const { login: loginApi, loading } = useAuthApi();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     try {
       const { token, user } = await loginApi(email, password);
