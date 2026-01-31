@@ -9,7 +9,22 @@ import tasksRoutes from "./routes/tasks.js";
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+
+const corsOptions = {
+  origin: [
+    "http://localhost:5173", //  dev
+    "https://photocircle.vercel.app/ ",
+  ],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+};
+
+app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 
 // basic global rate limit
