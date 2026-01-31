@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import axios from "axios";
-import { API_BASE_URL } from "../api/config";
+import { API_BASE_URL } from "../api/config.ts";
 
 export interface Task {
   id: string;
