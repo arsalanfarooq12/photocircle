@@ -10,25 +10,24 @@ const app = express();
 
 app.use(helmet());
 
-const corsOptions = {
-  origin: [
-    "http://localhost:5173", //  dev
-    "https://photocircle.vercel.app/ ",
-  ],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-};
+const cors = require("cors");
 
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://photocircle.vercel.app"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Handle preflight requests
-app.options("/*path", cors(corsOptions));
+app.options("/*path", cors());
 
 app.use(express.json());
 
 // basic global rate limit
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
 app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
