@@ -10,8 +10,6 @@ const app = express();
 
 app.use(helmet());
 
-const cors = require("cors");
-
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://photocircle.vercel.app"],
