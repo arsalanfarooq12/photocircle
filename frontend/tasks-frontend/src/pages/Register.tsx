@@ -33,54 +33,56 @@ export function Register() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
-      <h1 className="text-2xl font-bold mb-6">Register</h1>
+    <div className="flex justify-center items-center">
+      <div className="max-w-md mx-auto mt-3 ml-40 p-6 bg-blue-500 rounded shadow  ">
+        <h1 className="text-2xl font-bold mb-6">Register</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-          className="w-full p-2 border rounded mb-4"
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full p-2 border rounded mb-4"
+            required
+          />
 
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password (min 6 chars)"
-          className="w-full p-2 border rounded mb-4"
-          required
-        />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password (min 6 chars)"
+            className="w-full p-2 border rounded mb-4"
+            required
+          />
 
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirm password"
-          className="w-full p-2 border rounded mb-4"
-          required
-        />
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm password"
+            className="w-full p-2 border rounded mb-4"
+            required
+          />
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+          {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white p-2 rounded"
-        >
-          {loading ? "Loading..." : "Create account"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-700 text-white p-2 rounded"
+          >
+            {loading ? "Loading..." : "Create account"}
+          </button>
+        </form>
 
-      <p className="mt-4 text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="text-blue-500">
-          Login
-        </Link>
-      </p>
+        <p className="mt-4 text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-amber-200">
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

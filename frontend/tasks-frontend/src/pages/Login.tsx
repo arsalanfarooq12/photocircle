@@ -23,7 +23,7 @@ export function Login() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded shadow">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-blue-500 rounded shadow">
       <h1 className="text-2xl font-bold mb-6">Login</h1>
       <form onSubmit={handleSubmit}>
         <input
@@ -46,14 +46,14 @@ export function Login() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white p-2 rounded"
+          className="w-full bg-blue-700 text-white p-2 rounded"
         >
           {loading ? "Loading..." : "Login"}
         </button>
       </form>
       <p className="mt-4 text-center">
         No account?{" "}
-        <Link to="/register" className="text-blue-500">
+        <Link to="/register" className="text-blue-900">
           Register
         </Link>
       </p>

@@ -43,6 +43,7 @@ export function Tasks() {
           justifyContent: "center",
           alignItems: "center",
           height: "50vh",
+          width: "100%",
           fontSize: "18px",
         }}
       >
@@ -52,269 +53,137 @@ export function Tasks() {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "800px",
-        margin: "0 auto",
-        padding: "24px",
-        minHeight: "100vh",
-      }}
-    >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "32px",
-          paddingBottom: "16px",
-          borderBottom: "1px solid #e2e8f0",
-        }}
-      >
-        <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#1f2937" }}>
-          My Tasks ({tasks.length})
-        </h1>
-        <button
-          onClick={logout}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "14px",
-            cursor: "pointer",
-            fontWeight: "500",
-          }}
-        >
-          Logout
-        </button>
-      </div>
-
-      {/* New Task Form */}
-
-      <div style={{ marginBottom: "32px" }}>
-        <form onSubmit={handleCreateTask}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "12px",
-              maxWidth: "600px",
-            }}
+    <div className="min-h-screen bg-grey-700">
+      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-12 pb-8 border-b border-gray-200">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-200 mb-4 sm:mb-0">
+            My Tasks ({tasks.length})
+          </h1>
+          <button
+            onClick={logout}
+            className="px-6 py-3 bg-red-600 text-gray-300 font-semibold rounded-xl hover:bg-red-700 transition-all shadow-lg"
           >
+            Logout
+          </button>
+        </div>
+
+        {/* Form */}
+        <div className="max-w-2xl mb-12">
+          <form onSubmit={handleCreateTask} className="space-y-4">
             <input
               type="text"
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
               placeholder="Task title..."
-              style={{
-                padding: "14px 16px",
-                border: "2px solid #d1d5db",
-                borderRadius: "8px",
-                fontSize: "16px",
-                outline: "none",
-              }}
+              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 text-lg transition-all  text-gray-200"
               required
               disabled={loading}
             />
-
             <textarea
               value={newTaskDescription || ""}
               onChange={(e) => setNewTaskDescription(e.target.value)}
               placeholder="Description (optional)..."
               rows={3}
-              style={{
-                padding: "12px 16px",
-                border: "2px solid #d1d5db",
-                borderRadius: "8px",
-                fontSize: "16px",
-                resize: "vertical",
-                outline: "none",
-                fontFamily: "inherit",
-              }}
+              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-500 focus:border-blue-500 resize-vertical text-gray-200"
               disabled={loading}
             />
-
             <button
               type="submit"
               disabled={loading || !newTaskTitle.trim()}
-              style={{
-                padding: "14px 24px",
-                backgroundColor:
-                  loading || !newTaskTitle.trim() ? "#9ca3af" : "#10b981",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "16px",
-                cursor:
-                  loading || !newTaskTitle.trim() ? "not-allowed" : "pointer",
-                fontWeight: "500",
-              }}
+              className="w-full p-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-green-700 disabled:from-gray-400 disabled:to-gray-500 shadow-xl transition-all"
             >
-              {loading ? "Creating..." : "Add Task"}
+              {loading ? "Creating..." : "➕ Add Task"}
             </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
 
-      {/* Tasks List */}
-      <div style={{ display: "grid", gap: "16px" }}>
-        {tasks.length === 0 ? (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "60px 20px",
-              color: "#6b7280",
-              fontSize: "16px",
-            }}
-          >
-            No tasks yet. Create one above!
-          </div>
-        ) : (
-          tasks.map((task) => (
-            <div
-              key={task.id}
-              style={{
-                padding: "20px",
-                border: "1px solid #e5e7eb",
-                borderRadius: "12px",
-                backgroundColor: "white",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                transition: "all 0.2s",
-              }}
-              className="task-item"
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "16px",
-                }}
-              >
-                {/* Checkbox */}
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => handleToggleComplete(task)}
-                  style={{
-                    marginTop: "4px",
-                    width: "20px",
-                    height: "20px",
-                    cursor: "pointer",
-                  }}
-                />
-
-                {/* Task Content */}
-                <div style={{ flex: 1, position: "relative" }}>
-                  <h3
-                    style={{
-                      margin: 0,
-                      fontSize: "18px",
-                      fontWeight: task.completed ? "400" : "600",
-                      color: task.completed ? "#9ca3af" : "#1f2937",
-                      textDecoration: task.completed ? "line-through" : "none",
-                    }}
-                  >
-                    {task.title}
-                  </h3>
-
-                  {/* Description Edit */}
-                  {editingTaskId === task.id ? (
-                    <textarea
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      onBlur={() => {
-                        if (editDescription.trim() !== task.description) {
-                          updateTask(task.id, {
-                            description: editDescription.trim(),
-                          });
-                        }
-                        setEditingTaskId(null);
-                        setEditDescription("");
-                      }}
-                      autoFocus
-                      style={{
-                        marginTop: "8px",
-                        padding: "8px 12px",
-                        border: "2px solid #3b82f6",
-                        borderRadius: "6px",
-                        fontSize: "14px",
-                        width: "100%",
-                        resize: "vertical",
-                        minHeight: "60px",
-                        fontFamily: "inherit",
-                        outline: "none",
-                      }}
-                      placeholder="Enter description..."
-                    />
-                  ) : (
-                    <>
-                      {task.description && (
-                        <p
-                          style={{
-                            margin: "8px 0 0 0",
-                            color: "#6b7280",
-                            fontSize: "14px",
-                            lineHeight: "1.5",
-                          }}
-                        >
-                          {task.description}
-                        </p>
-                      )}
-                      <button
-                        onClick={() => {
-                          setEditingTaskId(task.id);
-                          setEditDescription(task.description);
-                        }}
-                        style={{
-                          marginTop: "8px",
-                          padding: "4px 12px",
-                          backgroundColor: "#dbeafe",
-                          color: "#1e40af",
-                          border: "1px solid #93c5fd",
-                          borderRadius: "4px",
-                          fontSize: "12px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {task.description ? "Edit desc" : "Add desc"}
-                      </button>
-                    </>
-                  )}
-
-                  <p
-                    style={{
-                      margin: "8px 0 0 0",
-                      color: "#9ca3af",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {new Date(task.updated_at).toLocaleDateString()}
-                  </p>
-                </div>
-
-                {/* Delete Button */}
-                <button
-                  onClick={() => handleDeleteTask(task.id)}
-                  style={{
-                    padding: "8px 12px",
-                    backgroundColor: "#fef2f2",
-                    color: "#dc2626",
-                    border: "1px solid #fecaca",
-                    borderRadius: "6px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    fontWeight: "500",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
+        {/* Tasks */}
+        <div className="grid gap-6">
+          {tasks.length === 0 ? (
+            <div className="col-span-full text-center py-20 bg-white rounded-3xl shadow-xl border border-gray-100">
+              <div className="text-6xl mb-6">📋</div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                No tasks yet
+              </h2>
+              <p className="text-lg text-gray-500">
+                Start by adding your first task above!
+              </p>
             </div>
-          ))
-        )}
+          ) : (
+            tasks.map((task) => (
+              <div
+                key={task.id}
+                className="bg-gray-400 p-8 rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all"
+              >
+                <div className="flex items-start gap-4">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleToggleComplete(task)}
+                    className="mt-1 w-6 h-6 rounded-lg text-blue-600 focus:ring-blue-600 border-2"
+                  />
+                  <div className="flex-1">
+                    <h3
+                      className={`text-xl font-bold mb-2 ${
+                        task.completed
+                          ? "text-gray-500 line-through"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {task.title}
+                    </h3>
+                    {/* Description Edit */}
+                    {editingTaskId === task.id ? (
+                      <textarea
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                        onBlur={() => {
+                          if (editDescription.trim() !== task.description) {
+                            updateTask(task.id, {
+                              description: editDescription.trim(),
+                            });
+                          }
+                          setEditingTaskId(null);
+                          setEditDescription("");
+                        }}
+                        autoFocus
+                        className="mt-3 w-full p-3 border-2 border-blue-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical min-h-[80px] font-medium"
+                      />
+                    ) : (
+                      <>
+                        {task.description && (
+                          <p className="mt-2 text-gray-600 leading-relaxed">
+                            {task.description}
+                          </p>
+                        )}
+                        <button
+                          onClick={() => {
+                            setEditingTaskId(task.id);
+                            setEditDescription(task.description || "");
+                          }}
+                          className="mt-2 inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full hover:bg-blue-200 transition-colors"
+                        >
+                          {task.description ? "✏️ Edit" : "➕ Add description"}
+                        </button>
+                      </>
+                    )}
+
+                    <p className="mt-3 text-xs text-gray-500">
+                      {new Date(task.updated_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteTask(task.id)}
+                    className="px-4 py-2 bg-red-200 text-red-600 font-semibold rounded-xl hover:bg-red-100 transition-all"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
