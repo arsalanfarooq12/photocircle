@@ -12,7 +12,11 @@ app.use(helmet());
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://photocircle.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://photocircle.vercel.app",
+      "http://localhost:8081",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -25,7 +29,7 @@ app.options("/*path", cors());
 app.use(express.json());
 
 // basic global rate limit
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+app.use(rateLimit({ windowMs: 30 * 60 * 1000, max: 100 }));
 app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
